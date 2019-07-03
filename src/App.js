@@ -1,26 +1,62 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import './bootstrap.min.css';
+import Header from './components/Header';
+import NuevaCita from './components/NuevaCita';
+import ListaCitas from './components/ListaCitas';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+	state = {
+		citas: []
+	};
+
+	// Cuando la aplicación carga
+	componentDidMount() {
+		const citasLS = localStorage.getItem('citas');
+		if (citasLS) {
+			this.setState({ citas: JSON.parse(citasLS) });
+		}
+	}
+
+	// Cuando agregamos o eliminamos una cita
+	componentDidUpdate() {
+		localStorage.setItem('citas', JSON.stringify(this.state.citas));
+	}
+
+	crearNuevaCita = cita => {
+		// copiar el state actual
+		const citas = [...this.state.citas, cita];
+
+		// agregar nuevo state
+		this.setState({ citas });
+	};
+
+	// Elimina cita del state
+	eliminarCita = id => {
+		// Tomar una copia del state
+		const citasActuales = [...this.state.citas];
+
+		// Utilizar filter para sacar el elemento @id del arreglo
+		const citas = citasActuales.filter(cita => cita.id !== id);
+
+		// Actualizando el state
+		this.setState({ citas });
+	};
+
+	render() {
+		return (
+			<div className="container">
+				<Header title="Administrador Pacientes Veterinaria" />
+				<div className="row">
+					<div className="col-md-10 mx-auto">
+						<NuevaCita crearNuevaCita={this.crearNuevaCita} />
+					</div>
+					<div className="mt-5 col-md-10 mx-auto">
+						<ListaCitas citas={this.state.citas} eliminarCita={this.eliminarCita} />
+					</div>
+				</div>
+			</div>
+		);
+	}
 }
 
 export default App;
